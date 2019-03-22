@@ -1,0 +1,15 @@
+--Estados--
+q0
+q1
+q2
+--Alfabeto--
+a
+b
+c
+π
+--Estados finales--
+q1
+--Tabla--
+q0,q1,q2;0;0;0
+0;q1;0;0
+0;0;q2;q1
