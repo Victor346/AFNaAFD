@@ -213,11 +213,6 @@ public class main{
                             }
                         }
                     }
-
-
-
-
-
                 }
                 nodito.arcos.add(new arco(nodito.nombre,nuevoNodo.toString(),car));
                 boolean flag = true;
@@ -232,8 +227,6 @@ public class main{
                     nuevoHacer.add(AFD.get(AFD.size()-1));
 
                 }
-
-
             }
         }
 
@@ -268,8 +261,6 @@ public class main{
         nodos.get(estadoInicial).cerradura.addAll(temp);
             return encontrarCerradura(estadoInicial,cerraduraSize, nodos);
     }
-
-
 }
 
 
