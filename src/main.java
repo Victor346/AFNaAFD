@@ -10,6 +10,7 @@ public class main{
         ArrayList<nodo> tablaT = new ArrayList<>();
         ArrayList<arco> arcos = new ArrayList<arco>();
         ArrayList<Character> chars = new ArrayList<Character>();
+        ArrayList<NodoAFD> AFD = new ArrayList<>();
         int etapa = 0;
         String linTemp;
         int numLetritas = 0;
@@ -93,13 +94,25 @@ public class main{
             }
         }
 
-        //Imprime cerradura
+        //Imprime y la crea No borrar No es debug
         System.out.println("Cerraduras lambda");
         for(int x=0;x<nodos.size();x++) {
             System.out.println(encontrarCerradura(x, 100, nodos));
         }
+
+        //Copiar Cerraduras
+        for(int x=0;x<nodos.size();x++) {
+            tablaT.get(x).cerradura = nodos.get(x).cerradura;
+        }
+        //
+
+        //Aqui se crea la tabla t
+
         int contadorDos=0;
+        int contadorTres=0;
         for(int i = 0; i < nodos.size(); i++){
+            for(Character car: chars) {
+                Set<String> nuevosArcos = new HashSet();
             for(String elementoCerradura: nodos.get(i).cerradura) {
                 contadorDos=0;
                 for(int j = 0; j < nodos.size(); j++){
@@ -108,17 +121,44 @@ public class main{
                         break;
                     }
                 }
-                for(Character car: chars) {
+
+
+
+
                     if (car != 'π'){
                         for (arco ark : nodos.get(contadorDos).arcos) {
                             if (ark.letrita == car && !ark.nodoFinal.equals("0")) {
-                                tablaT.get(i).arcos.add(new arco(nodos.get(i).nombre, ark.nodoFinal, car));
+                                contadorTres=0;
+                                for(int x = 0; x < nodos.size(); x++){
+                                    if (nodos.get(x).nombre.equals(ark.nodoFinal)) {
+                                        contadorTres = x;
+                                        break;
+                                    }
+                                }
+
+                                nuevosArcos.addAll(nodos.get(contadorTres).cerradura);
+
+
+
                             }
                         }
+
                 }
+
                 }
+                if(!nuevosArcos.isEmpty()) {
+                    for (String cosa : nuevosArcos) {
+                        tablaT.get(i).arcos.add(new arco(nodos.get(i).nombre, cosa, car));
+                    }
+                } else {
+                    if(car!='π') {
+                        tablaT.get(i).arcos.add(new arco(nodos.get(i).nombre, "0", car));
+                    }
+                }
+
             }
         }
+
 
 
 
@@ -128,6 +168,81 @@ public class main{
             for(arco ark : element.arcos){
                 System.out.println(ark.nodoInicial+" "+ark.nodoFinal+" "+ark.letrita);
             }
+        }
+
+        ///Eliminar pi de chars
+        chars.remove(chars.size()-1);
+        //Convertir TablaT a AFD
+        AFD.add(new NodoAFD(nodos.get(0).cerradura.toString(), nodos.get(0).cerradura));
+        ArrayList<NodoAFD> porHacer = new ArrayList<>();
+        porHacer.add(AFD.get(0));
+        crearAFD(AFD,porHacer,tablaT,chars);
+
+        for(NodoAFD element: AFD) {
+            System.out.println(element.nombre);
+            for(arco ark : element.arcos){
+                System.out.println(ark.nodoInicial+" "+ark.nodoFinal+" "+ark.letrita);
+            }
+        }
+
+        //Fin Convertir TablaT a AFD
+
+    }
+
+    public static void crearAFD(ArrayList<NodoAFD> AFD, ArrayList<NodoAFD> porHacer, ArrayList<nodo> tablaT,ArrayList<Character> alfabeto){
+        int contador = 0;
+        ArrayList<NodoAFD> nuevoHacer = new ArrayList<>();
+        for(NodoAFD nodito: porHacer){
+            for(Character car: alfabeto){
+                Set<String> nuevoNodo = new HashSet<>();
+                for(String nodoInicial: nodito.nodosOriginales){
+
+                    //Encontrar equivalnecia en tablaT
+                    contador=0;
+                    for(int x = 0; x < tablaT.size(); x++){
+                        if (tablaT.get(x).nombre.equals(nodoInicial) ){
+                            contador = x;
+                            break;
+                        }
+                    }
+
+                    for(arco arcoOriginal:tablaT.get(contador).arcos){
+                        if(!arcoOriginal.nodoFinal.equals("0")) {
+                            if (arcoOriginal.nodoInicial.equals(nodoInicial) && arcoOriginal.letrita == car) {
+                                nuevoNodo.add(arcoOriginal.nodoFinal);
+                            }
+                        }
+                    }
+
+
+
+
+
+                }
+                nodito.arcos.add(new arco(nodito.nombre,nuevoNodo.toString(),car));
+                boolean flag = true;
+                for(NodoAFD nodosYa: AFD){
+                    if(nodosYa.nombre.equals(nuevoNodo.toString())){
+                        flag = false;
+                    }
+                }
+                int superTemp=0;
+                if(flag){
+                    AFD.add(new NodoAFD(nuevoNodo.toString(), nuevoNodo));
+                    nuevoHacer.add(AFD.get(AFD.size()-1));
+
+                }
+
+
+            }
+        }
+
+        if(nuevoHacer.size()==0){
+            System.out.println("Adios");
+            return;
+        } else {
+            System.out.println("Hola");
+            crearAFD(AFD,nuevoHacer,tablaT,alfabeto);
         }
 
     }
